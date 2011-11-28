@@ -212,18 +212,18 @@ int main(int argc, char* argv[])
 {
     int test_command = TEST_BASIC;
 
-    union kowhai_symbol_t symbols1[] = {SYM_SETTINGS, SYM_OVEN, SYM_TEMP};
-    union kowhai_symbol_t symbols2[] = {SYM_SETTINGS, SYM_OVEN, SYM_TIMEOUT};
-    union kowhai_symbol_t symbols3[] = {SYM_SETTINGS, SYM_FLUXCAPACITOR};
-    union kowhai_symbol_t symbols4[] = {431, 12343};
-    union kowhai_symbol_t symbols5[] = {SYM_SHADOW, SYM_STATUS};
-    union kowhai_symbol_t symbols6[] = {SYM_SETTINGS, SYM_FLUXCAPACITOR, SYM_GAIN};
-    union kowhai_symbol_t symbols7[] = {SYM_SETTINGS, SYM_FLUXCAPACITOR, SYM_COEFFICIENT};
-    union kowhai_symbol_t symbols8[] = {SYM_SETTINGS, KOWHAI_SYMBOL(SYM_FLUXCAPACITOR, 1), SYM_GAIN};
-    union kowhai_symbol_t symbols9[] = {SYM_SETTINGS, KOWHAI_SYMBOL(SYM_FLUXCAPACITOR, 1), KOWHAI_SYMBOL(SYM_COEFFICIENT, 3)};
-    union kowhai_symbol_t symbols10[] = {SYM_SETTINGS, SYM_FLUXCAPACITOR, KOWHAI_SYMBOL(SYM_COEFFICIENT, 3)};
-    union kowhai_symbol_t symbols11[] = {SYM_SETTINGS, SYM_OVEN};
-    union kowhai_symbol_t symbols12[] = {SYM_SETTINGS, KOWHAI_SYMBOL(SYM_FLUXCAPACITOR, 1)};
+    struct kowhai_symbol_t symbols1[] = {{SYM_SETTINGS}, {SYM_OVEN}, {SYM_TEMP}};
+    struct kowhai_symbol_t symbols2[] = {{SYM_SETTINGS}, {SYM_OVEN}, {SYM_TIMEOUT}};
+    struct kowhai_symbol_t symbols3[] = {{SYM_SETTINGS}, {SYM_FLUXCAPACITOR}};
+    struct kowhai_symbol_t symbols4[] = {{431}, {12343}};
+    struct kowhai_symbol_t symbols5[] = {{SYM_SHADOW}, {SYM_STATUS}};
+    struct kowhai_symbol_t symbols6[] = {{SYM_SETTINGS}, {SYM_FLUXCAPACITOR}, {SYM_GAIN}};
+    struct kowhai_symbol_t symbols7[] = {{SYM_SETTINGS}, {SYM_FLUXCAPACITOR}, {SYM_COEFFICIENT}};
+    struct kowhai_symbol_t symbols8[] = {{SYM_SETTINGS}, {SYM_FLUXCAPACITOR, 1}, {SYM_GAIN}};
+    struct kowhai_symbol_t symbols9[] = {{SYM_SETTINGS}, {SYM_FLUXCAPACITOR, 1}, {SYM_COEFFICIENT, 3}};
+    struct kowhai_symbol_t symbols10[] = {{SYM_SETTINGS}, {SYM_FLUXCAPACITOR}, {SYM_COEFFICIENT, 3}};
+    struct kowhai_symbol_t symbols11[] = {{SYM_SETTINGS}, {SYM_OVEN}};
+    struct kowhai_symbol_t symbols12[] = {{SYM_SETTINGS}, {SYM_FLUXCAPACITOR, 1}};
 
     uint16_t offset;
     int size;
@@ -387,7 +387,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_WRITE_DATA_ACK);
             assert(prot.payload.spec.data.symbols.count == 3);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols1, sizeof(union kowhai_symbol_t) * 3) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols1, sizeof(struct kowhai_symbol_t) * 3) == 0);
             assert(prot.payload.spec.data.memory.type == INT16_T);
             assert(prot.payload.spec.data.memory.offset == 0);
             assert(prot.payload.spec.data.memory.size == sizeof(uint16_t));
@@ -403,7 +403,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_WRITE_DATA_ACK);
             assert(prot.payload.spec.data.symbols.count == 3);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols1, sizeof(union kowhai_symbol_t) * 3) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols1, sizeof(struct kowhai_symbol_t) * 3) == 0);
             assert(prot.payload.spec.data.memory.type == INT16_T);
             assert(prot.payload.spec.data.memory.offset == 1);
             assert(prot.payload.spec.data.memory.size == 1);
@@ -426,7 +426,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_WRITE_DATA_ACK);
             assert(prot.payload.spec.data.symbols.count == 2);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols11, sizeof(union kowhai_symbol_t) * 2) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols11, sizeof(struct kowhai_symbol_t) * 2) == 0);
             assert(prot.payload.spec.data.memory.type == 0);
             assert(prot.payload.spec.data.memory.offset == 0);
             assert(prot.payload.spec.data.memory.size == sizeof(oven));
@@ -443,7 +443,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_WRITE_DATA_ACK);
             assert(prot.payload.spec.data.symbols.count == 2);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols3, sizeof(union kowhai_symbol_t) * 2) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols3, sizeof(struct kowhai_symbol_t) * 2) == 0);
             assert(prot.payload.spec.data.memory.type == 0);
             assert(prot.payload.spec.data.memory.offset == 0);
             assert(prot.payload.spec.data.memory.size == MAX_PACKET_SIZE - overhead);
@@ -470,7 +470,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_WRITE_DATA_ACK);
             assert(prot.payload.spec.data.symbols.count == 2);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols12, sizeof(union kowhai_symbol_t) * 2) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols12, sizeof(struct kowhai_symbol_t) * 2) == 0);
             assert(prot.payload.spec.data.memory.type == 0);
             assert(prot.payload.spec.data.memory.offset == 0);
             assert(prot.payload.spec.data.memory.size == sizeof(struct flux_capacitor_t));
@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_READ_DATA_ACK_END);
             assert(prot.payload.spec.data.symbols.count == 3);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols1, sizeof(union kowhai_symbol_t) * 3) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols1, sizeof(struct kowhai_symbol_t) * 3) == 0);
             assert(prot.payload.spec.data.memory.type == INT16_T);
             assert(prot.payload.spec.data.memory.offset == 0);
             assert(prot.payload.spec.data.memory.size == sizeof(int16_t));
@@ -500,7 +500,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_READ_DATA_ACK);
             assert(prot.payload.spec.data.symbols.count == 2);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols3, sizeof(union kowhai_symbol_t) * 2) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols3, sizeof(struct kowhai_symbol_t) * 2) == 0);
             assert(prot.payload.spec.data.memory.type == 0);
             assert(prot.payload.spec.data.memory.offset == 0);
             kowhai_protocol_get_overhead(&prot, &overhead);
@@ -513,7 +513,7 @@ int main(int argc, char* argv[])
             assert(prot.header.tree_id == TREE_ID_SETTINGS);
             assert(prot.header.command == CMD_READ_DATA_ACK_END);
             assert(prot.payload.spec.data.symbols.count == 2);
-            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols3, sizeof(union kowhai_symbol_t) * 2) == 0);
+            assert(memcmp(prot.payload.spec.data.symbols.array_, symbols3, sizeof(struct kowhai_symbol_t) * 2) == 0);
             assert(prot.payload.spec.data.memory.type == 0);
             assert(prot.payload.spec.data.memory.offset == MAX_PACKET_SIZE - overhead);
             assert(prot.payload.spec.data.memory.size == sizeof(struct flux_capacitor_t) * 2 - prot.payload.spec.data.memory.offset);

@@ -46,7 +46,7 @@ struct kowhai_protocol_header_t
 struct kowhai_protocol_symbol_spec_t
 {
     uint8_t count;
-    union kowhai_symbol_t* array_;
+    struct kowhai_symbol_t* array_;
 };
 
 struct kowhai_protocol_data_payload_memory_spec_t

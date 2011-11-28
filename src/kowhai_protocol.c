@@ -27,14 +27,14 @@ int _parse_symbols(void* payload_packet, int packet_size, struct kowhai_protocol
 
     // get symbol count
     payload->spec.data.symbols.count = *((uint8_t*)payload_packet);
-    required_size += sizeof(union kowhai_symbol_t) * payload->spec.data.symbols.count;
+    required_size += sizeof(struct kowhai_symbol_t) * payload->spec.data.symbols.count;
 
     // check packet is large enough for symbols array
     if (packet_size < required_size)
         return STATUS_PACKET_BUFFER_TOO_SMALL;
 
     // get symbol array
-    payload->spec.data.symbols.array_ = (union kowhai_symbol_t*)((uint8_t*)payload_packet + sizeof(payload->spec.data.symbols.count));
+    payload->spec.data.symbols.array_ = (struct kowhai_symbol_t*)((uint8_t*)payload_packet + sizeof(payload->spec.data.symbols.count));
 
     // return OK
     *symbols_size = required_size;
@@ -56,7 +56,7 @@ int _parse_data_payload(void* payload_packet, int packet_size, struct kowhai_pro
 
     // copy the rest of the payload spec
     memcpy(&payload->spec.data.memory,
-        (uint8_t*)payload_packet + sizeof(payload->spec.data.symbols.count) + sizeof(union kowhai_symbol_t) * payload->spec.data.symbols.count,
+        (uint8_t*)payload_packet + sizeof(payload->spec.data.symbols.count) + sizeof(struct kowhai_symbol_t) * payload->spec.data.symbols.count,
         sizeof(struct kowhai_protocol_data_payload_memory_spec_t));
 
     // check the packet is large enough to hold the payload buffer
@@ -64,7 +64,7 @@ int _parse_data_payload(void* payload_packet, int packet_size, struct kowhai_pro
         return STATUS_PACKET_BUFFER_TOO_SMALL;
 
     // set payload buffer pointer
-    payload->buffer = (void*)((char*)payload_packet + sizeof(payload->spec.data.symbols.count) + sizeof(union kowhai_symbol_t) * payload->spec.data.symbols.count + sizeof(struct kowhai_protocol_data_payload_memory_spec_t));
+    payload->buffer = (void*)((char*)payload_packet + sizeof(payload->spec.data.symbols.count) + sizeof(struct kowhai_symbol_t) * payload->spec.data.symbols.count + sizeof(struct kowhai_protocol_data_payload_memory_spec_t));
 
     return STATUS_OK;
 }
@@ -149,11 +149,11 @@ int kowhai_protocol_create(void* proto_packet, int packet_size, struct kowhai_pr
             pkt += SYM_COUNT_SIZE;
 
             // write symbols
-            *bytes_required += protocol->payload.spec.data.symbols.count * sizeof(union kowhai_symbol_t);
+            *bytes_required += protocol->payload.spec.data.symbols.count * sizeof(struct kowhai_symbol_t);
             if (packet_size < *bytes_required)
                 return STATUS_PACKET_BUFFER_TOO_SMALL;
-            memcpy(pkt, protocol->payload.spec.data.symbols.array_, protocol->payload.spec.data.symbols.count * sizeof(union kowhai_symbol_t));
-            pkt += protocol->payload.spec.data.symbols.count * sizeof(union kowhai_symbol_t);;
+            memcpy(pkt, protocol->payload.spec.data.symbols.array_, protocol->payload.spec.data.symbols.count * sizeof(struct kowhai_symbol_t));
+            pkt += protocol->payload.spec.data.symbols.count * sizeof(struct kowhai_symbol_t);;
 
             break;
     }
@@ -224,12 +224,12 @@ int kowhai_protocol_get_overhead(struct kowhai_protocol_t* protocol, int* overhe
         case CMD_READ_DATA_ACK:
         case CMD_READ_DATA_ACK_END:
             *overhead = sizeof(struct kowhai_protocol_t) - sizeof(protocol->payload.spec.data.symbols.array_) +
-                sizeof(union kowhai_symbol_t) * protocol->payload.spec.data.symbols.count -
+                sizeof(struct kowhai_symbol_t) * protocol->payload.spec.data.symbols.count -
                 sizeof(protocol->payload.buffer);
             return STATUS_OK;
         case CMD_READ_DATA:
             *overhead = sizeof(struct kowhai_protocol_header_t) + sizeof(protocol->payload.spec.data.symbols.count) +
-                sizeof(union kowhai_symbol_t) * protocol->payload.spec.data.symbols.count;
+                sizeof(struct kowhai_symbol_t) * protocol->payload.spec.data.symbols.count;
             return STATUS_OK;
         default:
             return STATUS_INVALID_PROTOCOL_COMMAND;
