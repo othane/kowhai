@@ -50,6 +50,15 @@ namespace kowhai_sharp
             public uint16_t tag;
         }
 
+        [StructLayout(LayoutKind.Explicit)]
+        public struct kowhai_tree_t
+        {
+            [FieldOffset(0)]
+            IntPtr desc;
+            [FieldOffset(0)]
+            IntPtr data;
+        }
+
         public const int BRANCH = 0;
         public const int BRANCH_END = 1;
 
@@ -87,34 +96,34 @@ namespace kowhai_sharp
         public static extern int kowhai_get_node_size(IntPtr tree_descriptor, out int size);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_read(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, int read_offset, IntPtr result, int read_size);
+        public static extern int kowhai_read(IntPtr tree, int num_symbols, IntPtr symbols, int read_offset, IntPtr result, int read_size);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_write(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, int write_offset, IntPtr value, int write_size);
+        public static extern int kowhai_write(IntPtr tree, int num_symbols, IntPtr symbols, int write_offset, IntPtr value, int write_size);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_get_int8(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, out byte result);
+        public static extern int kowhai_get_int8(IntPtr tree, int num_symbols, IntPtr symbols, out byte result);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_get_int16(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, out int16_t result);
+        public static extern int kowhai_get_int16(IntPtr tree, int num_symbols, IntPtr symbols, out int16_t result);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_get_int32(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, out int32_t result);
+        public static extern int kowhai_get_int32(IntPtr tree, int num_symbols, IntPtr symbols, out int32_t result);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_get_float(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, out float result);
+        public static extern int kowhai_get_float(IntPtr tree, int num_symbols, IntPtr symbols, out float result);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_set_char(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, char value);
+        public static extern int kowhai_set_char(IntPtr tree, int num_symbols, IntPtr symbols, char value);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_set_int16(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, int16_t value);
+        public static extern int kowhai_set_int16(IntPtr tree, int num_symbols, IntPtr symbols, int16_t value);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_set_int32(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, int32_t value);
+        public static extern int kowhai_set_int32(IntPtr tree, int num_symbols, IntPtr symbols, int32_t value);
 
         [DllImport(dllname, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kowhai_set_float(IntPtr tree_descriptor, IntPtr tree_data, int num_symbols, IntPtr symbols, float value);
+        public static extern int kowhai_set_float(IntPtr tree, int num_symbols, IntPtr symbols, float value);
 
         public static int GetNode(kowhai_node_t[] descriptor, kowhai_symbol_t[] symbols, out int offset, out kowhai_node_t node)
         {
