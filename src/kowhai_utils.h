@@ -5,11 +5,16 @@
 
 /**
  * @brief called when a difference is found between two tree's
- * @param left tree with the desc set to the node and data where the difference is in the left tree, or NULL if right is a unique node
- * @param right tree with the desc set to the node and data where the difference is in the right tree, or NULL if left is a unique node
+ * @param left_node, points to the left node where the difference was found, or NULL if right node is unique
+ * @param left_data, point to the start of the difference in the left node, or NULL if right node is unique
+ * @param left_offset, the offset into left_data (if not NULL) where the difference starts
+ * @param right_node, points to the right node where the difference was found, or NULL if left node is unique
+ * @param right_data, point to the start of the difference in the right node, or NULL if left node is unique
+ * @param right_offset, the offset into right_data (if not NULL) where the difference starts
+ * @param index, the array index of this node where the difference starts
  * @param depth number of parent nodes from the root node that this difference was found
  */
-typedef int (*kowhai_on_diff_t)(const struct kowhai_tree_t *left, const struct kowhai_tree_t *right, int depth);
+typedef int (*kowhai_on_diff_t)(const struct kowhai_node_t *left_node, void *left_data, int left_offset, const struct kowhai_node_t *right_node, void *right_data, int right_offset, int index, int depth);
 
 /**
  * @brief diff left and right tree

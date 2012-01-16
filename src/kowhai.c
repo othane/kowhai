@@ -49,7 +49,7 @@ static int get_node_size(const struct kowhai_node_t *node, int *size, int *num_n
     if (node->type != KOW_BRANCH_START)
     {
         _size = kowhai_get_node_type_size(node->type) * node->count;
-        *num_nodes_processed = 1;
+        *num_nodes_processed = 0;
         goto done;
     }
     
@@ -100,12 +100,20 @@ int kowhai_get_node_size(const struct kowhai_node_t *node, int *size)
     return get_node_size(node, size, &num_nodes_processed);
 }
 
+int kowhai_get_node_count(const struct kowhai_node_t *node, int *count)
+{
+    int size, ret;
+    ret = get_node_size(node, &size, count);
+    (*count)++;
+    return ret;
+}
+
 /**
  * @brief find a item in the tree given its path
  * @param node to start searching from for the given item
  * @param num_symbols number of items in the path (@todo should we just terminate the path instead)
  * @param symbols the path of the item to seek
- * @param offset set to number of bytes from the current branch to the item
+ * @param offset set to number of bytes from the current node to the requested symbol
  * @param target_node placeholder for the result of the node search
  * @param num_nodes_processed how many nodes were iterated over during this function call
  * @return < 0 on failure
@@ -166,9 +174,7 @@ int get_node(const struct kowhai_node_t *node, int num_symbols, const union kowh
             // propagate the error
             return ret;
         _offset += skip_size;
-        if (node[i].type == KOW_BRANCH_START)
-            i++;
-        i += skip_nodes;
+        i += skip_nodes + 1;
     }
 
 done:
