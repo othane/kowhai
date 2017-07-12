@@ -15,7 +15,7 @@ typedef struct kowhai_protocol_server_t* pkowhai_protocol_server_t;
  * @param packet_size bytes in the packet buffer
  * @param protocol pointer to the protocol object that generated the packet
  */
-typedef void (*kowhai_send_packet_t)(pkowhai_protocol_server_t server, void* param, void* packet, size_t packet_size, struct kowhai_protocol_t* protocol);
+typedef int (*kowhai_send_packet_t)(pkowhai_protocol_server_t server, void* param, void* packet, size_t packet_size, struct kowhai_protocol_t* protocol);
 
 /**
  * @brief called before node has been written via the kowhai protocol
