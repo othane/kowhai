@@ -102,7 +102,10 @@ int add_value(char** dest, size_t* dest_size, int* current_offset, uint16_t node
     switch (node_type)
     {
         case KOW_CHAR:
-            chars = write_string(*dest, *dest_size, "%c", val.c);
+            if (val.c < 32 || val.c >= 127)
+                chars = write_string(*dest, *dest_size, "%d", val.c);
+            else
+                chars = write_string(*dest, *dest_size, "%c", val.c);
             break;
         case KOW_INT8:
             chars = write_string(*dest, *dest_size, "%d", val.i8);
@@ -135,6 +138,19 @@ int add_value(char** dest, size_t* dest_size, int* current_offset, uint16_t node
         *current_offset += chars;
     }
     return chars;
+}
+
+static int str_printable(char *str, int len)
+{
+    while (len--)
+    {
+        if (str[len] == 0)
+            continue; // we allow/ignore nulls in strings
+        if (str[len] < 32 || str[len] >= 127)
+            return 0;
+    }
+
+    return 1;
 }
 
 int serialize_tree(struct kowhai_node_t** desc, void** data, char* target_buffer, size_t target_size, int level, void* get_name_param, kowhai_get_symbol_name_t get_name, int in_union, int* largest_data_field)
@@ -271,7 +287,25 @@ int serialize_tree(struct kowhai_node_t** desc, void** data, char* target_buffer
                 if (chars < 0)
                     return chars;
                 // write value/s
-                if (node->count > 1)
+                if (node->type == KOW_CHAR && node->count > 1 && str_printable((char *)*data, node->count))
+                {
+                    // special string case
+                    chars = write_string(target_buffer, target_size, "\"%.*s\"", node->count, (char*)*data);
+                    if (chars >= 0)
+                    {
+                        target_buffer += chars;
+                        target_size -= chars;
+                        target_offset += chars;
+                    }
+                    else
+                        return chars;
+                    // increment data pointer
+                    if (!in_union)
+                        *data = (char*)*data + value_size * node->count;
+                    else if (value_size * node->count > *largest_data_field)
+                        *largest_data_field = value_size * node->count;
+                }
+                else if (node->count > 1)
                 {
                     // write start bracket
                     chars = add_string(&target_buffer, &target_size, &target_offset, "[");
@@ -987,17 +1021,17 @@ static int process_tree_token(jsmn_parser* parser, int token_index, struct kowha
                     {
                         token_index++;
                         tok++;
-                    }
 
-                    // special string case
-                    if (desc->type == KOW_CHAR)
-                    {
-                        token_index++;
-                        memcpy(data, tok, desc->count * size);
-                        data = (char*)data + desc->count * size;
-                        data_size -= desc->count * desc->count * size;
-                        *data_offset += desc->count * size;
-                        continue;
+                        // special string case
+                        if (desc->type == KOW_CHAR && desc->count > 1 && parser->js[tok->start - 1] == '"')
+                        {
+                            memset(data, 0, desc->count);
+                            strncpy(data, parser->js + tok->start, MIN(tok->end - tok->start, desc->count));
+                            data = (char*)data + desc->count * size;
+                            data_size -= desc->count * desc->count * size;
+                            *data_offset += desc->count * size;
+                            continue;
+                        }
                     }
 
                     for (k = 0; k < desc->count; k++)
@@ -1016,6 +1050,7 @@ static int process_tree_token(jsmn_parser* parser, int token_index, struct kowha
                         {
                             case KOW_UINT8:
                             case KOW_INT8:
+                            case KOW_CHAR:
                             {
                                 //TODO: could probably call get_token_uint32 instead and remove get_token_uint16 (needs testing)
                                 res = get_token_uint8(parser, tok, &val.ui8);

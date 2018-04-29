@@ -527,9 +527,9 @@ void serialization_tests()
     assert(memcmp(data, &settings, sizeof(settings)) == 0);
 
     // kowhai serialize (nodes)
-	settings.flux_capacitor[0].coefficient[1] = FLT_MIN; // test really small values can be deserialised without loosing precision
-	settings.flux_capacitor[0].coefficient[2] = 1.0f + FLT_EPSILON;
-	settings.flux_capacitor[0].coefficient[3] = 0.33f;
+    settings.flux_capacitor[0].coefficient[1] = FLT_MIN; // test really small values can be deserialised without loosing precision
+    settings.flux_capacitor[0].coefficient[2] = 1.0f + FLT_EPSILON;
+    settings.flux_capacitor[0].coefficient[3] = 0.33f;
     buf_size = 10; // test dst buffer too small
     assert(kowhai_serialize_nodes(js, &buf_size, &settings_tree, path, COUNT_OF(path), NULL, get_symbol_name) == KOW_STATUS_TARGET_BUFFER_TOO_SMALL);
     buf_size = BUF_SIZE; // test path too small
@@ -554,10 +554,10 @@ void serialization_tests()
     memset(&settings, 0, sizeof(settings));
     assert(kowhai_deserialize_nodes(js, buf_size, &settings_tree, path, COUNT_OF(path), scratch, BUF_SIZE, NULL, get_symbol_index, NULL, NULL) == KOW_STATUS_OK);
     assert(settings.flux_capacitor[0].frequency == settings2.flux_capacitor[0].frequency);
-	assert(settings.flux_capacitor[0].coefficient[1] == FLT_MIN); // test really small values can be de-serialised without loosing precision
-	assert(settings.flux_capacitor[0].coefficient[2] != 1.0f);
-	assert(settings.flux_capacitor[0].coefficient[2] == 1.0f + FLT_EPSILON);
-	assert(settings.flux_capacitor[0].coefficient[3] * 3.0f == 3.0f * 0.33f);
+    assert(settings.flux_capacitor[0].coefficient[1] == FLT_MIN); // test really small values can be de-serialised without loosing precision
+    assert(settings.flux_capacitor[0].coefficient[2] != 1.0f);
+    assert(settings.flux_capacitor[0].coefficient[2] == 1.0f + FLT_EPSILON);
+    assert(settings.flux_capacitor[0].coefficient[3] * 3.0f == 3.0f * 0.33f);
     assert(settings.flux_capacitor[FLUX_CAP_COUNT - 1].coefficient[COEFF_COUNT - 1] == settings2.flux_capacitor[FLUX_CAP_COUNT - 1].coefficient[COEFF_COUNT - 1]);
     assert(settings.union_container[UNION_COUNT - 1].union_[UNION_COUNT - 1].beep == settings2.union_container[UNION_COUNT - 1].union_[UNION_COUNT - 1].beep);
     assert(memcmp(settings.union_container[UNION_COUNT - 1].union_[UNION_COUNT - 1].owner, settings2.union_container[UNION_COUNT - 1].union_[UNION_COUNT - 1].owner, OWNER_MAX_LEN) == 0);
