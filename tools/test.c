@@ -66,7 +66,9 @@ struct kowhai_node_t settings_descriptor[] =
     { KOW_UINT32,           SYM_CHECK,          1,                0 },
     { KOW_BRANCH_END,       SYM_UNIONCONTAINER, 0,                0 },
 
-    { KOW_UINT32,           SYM_CHECK,          1,                0 },
+    { KOW_INT64,            SYM_CHECK,          1,                0 },
+    { KOW_UINT64,           SYM_TIMEOUT,        1,                0 },
+    { KOW_DOUBLE,           SYM_TEMP,           1,                0 },
 
     { KOW_BRANCH_END,       SYM_SETTINGS,       0,                0 },
 };
@@ -180,7 +182,9 @@ struct settings_data_t
     struct flux_capacitor_t flux_capacitor[FLUX_CAP_COUNT];
     struct oven_t oven;
     struct union_container_t union_container[UNION_COUNT];
-    uint32_t check;
+    int64_t check;
+    uint64_t timeout;
+    double temp;
 };
 
 //
@@ -315,7 +319,9 @@ union kowhai_symbol_t symbols16[] = {SYM_SETTINGS, SYM_UNIONCONTAINER, SYM_UNION
 union kowhai_symbol_t symbols17[] = {SYM_SETTINGS, SYM_UNIONCONTAINER, SYM_UNION, SYM_OWNER};
 union kowhai_symbol_t symbols18[] = {SYM_SETTINGS, SYM_UNIONCONTAINER, SYM_CHECK};
 union kowhai_symbol_t symbols19[] = {SYM_SETTINGS, KOWHAI_SYMBOL(SYM_UNIONCONTAINER, 1), SYM_CHECK};
-union kowhai_symbol_t symbols99[] = {SYM_SETTINGS, SYM_CHECK};
+union kowhai_symbol_t symbols20[] = {SYM_SETTINGS, SYM_CHECK};
+union kowhai_symbol_t symbols21[] = {SYM_SETTINGS, SYM_TIMEOUT};
+union kowhai_symbol_t symbols22[] = {SYM_SETTINGS, SYM_TEMP};
 
 void core_tests()
 {
@@ -327,7 +333,10 @@ void core_tests()
     uint8_t status, beep;
     uint16_t temp;
     uint16_t timeout;
-    uint32_t gain, check;
+    uint32_t gain, check32;
+    int64_t check64;
+    uint64_t timeout64;
+    double temp64;
     float coeff;
     char owner_initial;
     struct flux_capacitor_t flux_capacitor = {"empty", 1, 2, 10, 20, 30, 40, 50, 60};
@@ -439,10 +448,21 @@ void core_tests()
     assert(kowhai_set_char(&settings_tree, 3, symbols13, 'B') == KOW_STATUS_OK);
     assert(kowhai_get_char(&settings_tree, 3, symbols13, &owner_initial) == KOW_STATUS_OK);
     assert(owner_initial == 'B');
-    assert(kowhai_set_int32(&settings_tree, COUNT_OF(symbols99), symbols99, 1234567890) == KOW_STATUS_OK);
-    assert(settings.check == 1234567890);
-    assert(kowhai_get_int32(&settings_tree, COUNT_OF(symbols99), symbols99, &check) == KOW_STATUS_OK);
-    assert(check == 1234567890);
+
+    assert(kowhai_set_int64(&settings_tree, COUNT_OF(symbols20), symbols20, INT64_MIN) == KOW_STATUS_OK);
+    assert(settings.check == INT64_MIN);
+    assert(kowhai_get_int64(&settings_tree, COUNT_OF(symbols20), symbols20, &check64) == KOW_STATUS_OK);
+    assert(check64 == INT64_MIN);
+
+    assert(kowhai_set_int64(&settings_tree, COUNT_OF(symbols21), symbols21, UINT64_MAX) == KOW_STATUS_OK);
+    assert(settings.timeout == UINT64_MAX);
+    assert(kowhai_get_int64(&settings_tree, COUNT_OF(symbols21), symbols21, &timeout64) == KOW_STATUS_OK);
+    assert(timeout64 == UINT64_MAX);
+
+    assert(kowhai_set_double(&settings_tree, COUNT_OF(symbols22), symbols22, DBL_EPSILON) == KOW_STATUS_OK);
+    assert(settings.temp == DBL_EPSILON);
+    assert(kowhai_get_double(&settings_tree, COUNT_OF(symbols22), symbols22, &temp64) == KOW_STATUS_OK);
+    assert(temp64 == DBL_EPSILON);
 
     // test get/set settings of a union branch
     assert(kowhai_set_int16(&settings_tree, COUNT_OF(symbols14), symbols14, 7337) == KOW_STATUS_OK);
@@ -455,12 +475,12 @@ void core_tests()
     assert((uint8_t)owner_initial == beep);
     assert(kowhai_set_int32(&settings_tree, COUNT_OF(symbols18), symbols18, 10) == KOW_STATUS_OK);
     assert(settings.union_container[0].check == 10);
-    assert(kowhai_get_int32(&settings_tree, COUNT_OF(symbols18), symbols18, &check) == KOW_STATUS_OK);
-    assert(check == 10);
+    assert(kowhai_get_int32(&settings_tree, COUNT_OF(symbols18), symbols18, &check32) == KOW_STATUS_OK);
+    assert(check32 == 10);
     assert(kowhai_set_int32(&settings_tree, COUNT_OF(symbols19), symbols19, 20) == KOW_STATUS_OK);
     assert(settings.union_container[1].check == 20);
-    assert(kowhai_get_int32(&settings_tree, COUNT_OF(symbols19), symbols19, &check) == KOW_STATUS_OK);
-    assert(check == 20);
+    assert(kowhai_get_int32(&settings_tree, COUNT_OF(symbols19), symbols19, &check32) == KOW_STATUS_OK);
+    assert(check32 == 20);
     printf(" passed!\n");
 }
 
@@ -962,6 +982,8 @@ int _compare_string_arrays(char** arr1, char** arr2, int count)
     }
     return 1;
 }
+
+size_t _get_string_list_size(char** list, int count);
 
 void test_client_protocol()
 {
