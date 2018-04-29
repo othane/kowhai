@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <linux/kd.h>
+#include <sys/ioctl.h>
 
 #endif
 
