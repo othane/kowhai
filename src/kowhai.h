@@ -30,6 +30,9 @@ enum kowhai_node_type
     KOW_UINT32,
     KOW_FLOAT,
     KOW_CHAR,
+    KOW_INT64,
+    KOW_UINT64,
+    KOW_DOUBLE,
 };
 
 /**
@@ -192,6 +195,26 @@ int kowhai_get_int32(struct kowhai_tree_t *tree, int num_symbols, union kowhai_s
 int kowhai_get_float(struct kowhai_tree_t *tree, int num_symbols, union kowhai_symbol_t* symbols, float* result);
 
 /**
+ * @brief Get a 64 bit integer setting specified by a symbol path from a settings buffer
+ * @param tree, the tree to get the value from
+ * @param num_symbols, number of symbols that make up the symbols path below
+ * @param symbols, a collection of symbols that forms a path to the node to start the get from
+ * @param result, the value of the node if found
+ * @return kowhai status value, ie KOW_STATUS_OK on success or other on error
+ */
+int kowhai_get_int64(struct kowhai_tree_t *tree, int num_symbols, union kowhai_symbol_t* symbols, int64_t* result);
+
+/**
+ * @brief Get a 64 bit double setting specified by a symbol path from a settings buffer
+ * @param tree, the tree to get the value from
+ * @param num_symbols, number of symbols that make up the symbols path below
+ * @param symbols, a collection of symbols that forms a path to the node to start the get from
+ * @param result, the value of the node if found
+ * @return kowhai status value, ie KOW_STATUS_OK on success or other on error
+ */
+int kowhai_get_double(struct kowhai_tree_t *tree, int num_symbols, union kowhai_symbol_t* symbols, double* result);
+
+/**
  * @brief Set a single byte char setting specified by a symbol path in a settings buffer
  * @param tree, the tree to write the value into
  * @param num_symbols, number of symbols that make up the symbols path below
@@ -232,5 +255,24 @@ int kowhai_set_int32(struct kowhai_tree_t *tree, int num_symbols, union kowhai_s
  */
 int kowhai_set_float(struct kowhai_tree_t *tree, int num_symbols, union kowhai_symbol_t* symbols, float value);
 
+/**
+ * @brief Set a 64 bit integer setting specified by a symbol path in a settings buffer
+ * @param tree, the tree to write the value into
+ * @param num_symbols, number of symbols that make up the symbols path below
+ * @param symbols, a collection of symbols that forms a path to the node to start the get from
+ * @param value, the new value to change the node to
+ * @return kowhai status value, ie KOW_STATUS_OK on success or other on error
+ */
+int kowhai_set_int64(struct kowhai_tree_t *tree, int num_symbols, union kowhai_symbol_t* symbols, int64_t value);
+
+/**
+ * @brief Set a 64 bit double setting specified by a symbol path in a settings buffer
+ * @param tree, the tree to write the value into
+ * @param num_symbols, number of symbols that make up the symbols path below
+ * @param symbols, a collection of symbols that forms a path to the node to start the get from
+ * @param value, the new value to change the node to
+ * @return kowhai status value, ie KOW_STATUS_OK on success or other on error
+ */
+int kowhai_set_double(struct kowhai_tree_t *tree, int num_symbols, union kowhai_symbol_t* symbols, double value);
 #endif
 

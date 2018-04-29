@@ -30,10 +30,13 @@ union any_type_t
     int8_t i8;
     int16_t i16;
     int32_t i32;
+    int64_t i64;
     uint8_t ui8;
     uint16_t ui16;
     uint32_t ui32;
+    uint64_t ui64;
     float f;
+    double d;
 };
 
 int write_string(char* buffer, size_t buffer_size, const char* format, ...)
@@ -116,6 +119,9 @@ int add_value(char** dest, size_t* dest_size, int* current_offset, uint16_t node
         case KOW_INT32:
             chars = write_string(*dest, *dest_size, "%d", val.i32);
             break;
+        case KOW_INT64:
+            chars = write_string(*dest, *dest_size, "%ld", val.i64);
+            break;
         case KOW_UINT8:
             chars = write_string(*dest, *dest_size, "%d", val.ui8);
             break;
@@ -125,8 +131,14 @@ int add_value(char** dest, size_t* dest_size, int* current_offset, uint16_t node
         case KOW_UINT32:
             chars = write_string(*dest, *dest_size, "%d", val.ui32);
             break;
+        case KOW_UINT64:
+            chars = write_string(*dest, *dest_size, "%ld", val.ui64);
+            break;
         case KOW_FLOAT:
             chars = write_string(*dest, *dest_size, "%.17g", val.f);
+            break;
+        case KOW_DOUBLE:
+            chars = write_string(*dest, *dest_size, "%.17lg", val.d);
             break;
         default:
             return -1;
@@ -545,6 +557,9 @@ static int val_to_str(struct kowhai_node_t *node, void *data, char *dst, int dst
             case KOW_INT32:
                 r = snprintf(dst, dst_len, "%"PRIi32, val.i32);
                 break;
+            case KOW_INT64:
+                r = snprintf(dst, dst_len, "%"PRIi64, val.i64);
+                break;
             case KOW_UINT8:
                 r = snprintf(dst, dst_len, "%"PRIu8, val.ui8);
                 break;
@@ -554,8 +569,14 @@ static int val_to_str(struct kowhai_node_t *node, void *data, char *dst, int dst
             case KOW_UINT32:
                 r = snprintf(dst, dst_len, "%"PRIu32, val.ui32);
                 break;
+            case KOW_UINT64:
+                r = snprintf(dst, dst_len, "%"PRIu64, val.ui64);
+                break;
             case KOW_FLOAT:
                 r = snprintf(dst, dst_len, "%.17g", val.f);
+                break;
+            case KOW_DOUBLE:
+                r = snprintf(dst, dst_len, "%.17lg", val.d);
                 break;
             default:
                 return -1;
@@ -948,6 +969,30 @@ static int get_token_float(jsmn_parser* parser, jsmntok_t* tok, float* value)
         return KOW_STATUS_TARGET_BUFFER_TOO_SMALL;
 }
 
+static int get_token_uint64(jsmn_parser* parser, jsmntok_t* tok, uint64_t* value)
+{
+    char temp[TEMP_SIZE];
+    if (copy_string_from_token(parser->js, tok, temp, TEMP_SIZE))
+    {
+        *value = strtoull(temp, NULL, 0);
+        return KOW_STATUS_OK;
+    }
+    else
+        return KOW_STATUS_TARGET_BUFFER_TOO_SMALL;
+}
+
+static int get_token_double(jsmn_parser* parser, jsmntok_t* tok, double* value)
+{
+    char temp[TEMP_SIZE];
+    if (copy_string_from_token(parser->js, tok, temp, TEMP_SIZE))
+    {
+        *value = atof(temp);
+        return KOW_STATUS_OK;
+    }
+    else
+        return KOW_STATUS_TARGET_BUFFER_TOO_SMALL;
+}
+
 static int token_string_match(jsmn_parser* parser, jsmntok_t* tok, char* str)
 {
     return tok->end - tok->start == strlen(str) &&
@@ -1072,6 +1117,17 @@ static int process_tree_token(jsmn_parser* parser, int token_index, struct kowha
                             case KOW_FLOAT:
                             {
                                 res = get_token_float(parser, tok, &val.f);
+                                break;
+                            }
+                            case KOW_UINT64:
+                            case KOW_INT64:
+                            {
+                                res = get_token_uint64(parser, tok, &val.ui64);
+                                break;
+                            }
+                            case KOW_DOUBLE:
+                            {
+                                res = get_token_double(parser, tok, &val.d);
                                 break;
                             }
                         }
@@ -1344,6 +1400,13 @@ static int process_nodes_token(jsmn_parser *parser, int src_size, struct kowhai_
                         break;
                     case KOW_FLOAT:
                         res = get_token_float(parser, tok, &val.f);
+                        break;
+                    case KOW_UINT64:
+                    case KOW_INT64:
+                        res = get_token_uint64(parser, tok, &val.ui64);
+                        break;
+                    case KOW_DOUBLE:
+                        res = get_token_double(parser, tok, &val.d);
                         break;
                 }
                 if (res != KOW_STATUS_OK)
